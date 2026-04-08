@@ -9,6 +9,6 @@ namespace ApiFinanceiro.DataContexts
 
         public DbSet<Despesa> Despesas { get; set; }
 
-
+        public DbSet<Categoria> Categorias { get; set; }
     }
 }

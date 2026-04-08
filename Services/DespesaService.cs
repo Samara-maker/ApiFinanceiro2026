@@ -5,6 +5,7 @@ using ApiFinanceiro.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ApiFinanceiro.Services
 {
@@ -24,7 +25,7 @@ namespace ApiFinanceiro.Services
         {
             try
             {
-                return await _context.Despesas.ToListAsync();
+                return await _context.Despesas.Include(d => d.Categoria).ToListAsync();
 
 
             } catch (Exception)
@@ -36,6 +37,13 @@ namespace ApiFinanceiro.Services
         {
             try
             {
+                var categoriaExiste = await _context.Categorias.AnyAsync(x => x.Id == data.CategoriaId);
+                if (!categoriaExiste)
+                {
+                    throw new ErrorServiceException($"Categoria nao encontrada",
+                        c => c.NotFound(new { message = $"Categoria #{data.CategoriaId} não encontrada" }));
+                }
+
                 var despesa = _mapper.Map<Despesa>(data);
 
                 await _context.Despesas.AddAsync(despesa);
@@ -73,23 +81,21 @@ namespace ApiFinanceiro.Services
 
         [HttpPut("{id}")]
 
-        public async Task<Despesa> Update(int id, DespesaUpdateDto despesaDto)
+        public async Task<Despesa> Update(int id, DespesaUpdateDto data)
         {
             try
             {
                 var despesa = await FindById(id);
-                
-                var dataVencimento = new DateTime(despesaDto.DataVencimento.Year, despesaDto.DataVencimento.Month, despesaDto.DataVencimento.Day);
-                var dataPagamento = new DateTime(despesaDto.DataPagamento.Year, despesaDto.DataPagamento.Month, despesaDto.DataPagamento.Day);
 
-                ////TODO: adicionar data de emissão
-                //if (dataPagamento < dataVencimento)
-                //{
-                //    throw new ErrorServiceException("Somente é possivel realizar o pagamento no dia do vencimento",
-                //        c => c.Conflict(new { message = $"Somente é possivel realizar o pagamento no dia do vencimento" }));
-                //}
+                var categoriaExiste = await _context.Categorias.AnyAsync(x => x.Id == data.CategoriaId);
+                if (!categoriaExiste)
+                {
+                    throw new ErrorServiceException($"Categoria nao encontrada",
+                        c => c.NotFound(new { message = $"Categoria #{data.CategoriaId} não encontrada" }));
+                }
 
-                _mapper.Map<DespesaUpdateDto, Despesa>(despesaDto,despesa);
+
+                _mapper.Map<DespesaUpdateDto, Despesa>(data,despesa);
 
                 _context.Despesas.Update(despesa);
                 await _context.SaveChangesAsync();
