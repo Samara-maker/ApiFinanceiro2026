@@ -5,6 +5,8 @@ using ApiFinanceiro.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ApiFinanceiro.Dtos.Responses;
+using AutoMapper.QueryableExtensions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ApiFinanceiro.Services
@@ -21,14 +23,21 @@ namespace ApiFinanceiro.Services
             _mapper = mapper;
         }
 
-        public async Task<ICollection<Despesa>> FindAll()
+        public async Task<ICollection<DespesaResponseDto>> FindAll()
         {
             try
             {
-                return await _context.Despesas.Include(d => d.Categoria).ToListAsync();
+                //var list = await _context.Despesas
+                //    .Include(d => d.Categoria)
+                //    .ToListAsync();
 
+                //return _mapper.Map<ICollection<DespesaResponseDto>>(list);
 
-            } catch (Exception)
+                return await _context.Despesas
+                    .ProjectTo<DespesaResponseDto>(_mapper.ConfigurationProvider)
+                    .ToListAsync();
+            }
+            catch (Exception)
             {
                 throw;
             }

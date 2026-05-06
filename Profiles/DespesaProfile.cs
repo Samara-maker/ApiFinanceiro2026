@@ -1,5 +1,6 @@
 ﻿using ApiFinanceiro.Models;
 using ApiFinanceiro.Dtos;
+using ApiFinanceiro.Dtos.Responses;
 using AutoMapper;
 
 namespace ApiFinanceiro.Profiles
@@ -18,7 +19,10 @@ namespace ApiFinanceiro.Profiles
                      src => src.DataPagamento.ToDateTime(TimeOnly.FromDateTime(DateTime.Now))
                      )
                  
-                 );                
+                 );
+            CreateMap<Categoria, CategoriaResponseDto>();
+
+            CreateMap<Despesa, DespesaResponseDto>();
         }
     }
 }

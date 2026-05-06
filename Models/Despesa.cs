@@ -32,5 +32,7 @@ namespace ApiFinanceiro.Models
 
         public virtual Categoria? Categoria { get; set; }
 
+        public ICollection<Tag>? Tags { get; set; }
+
     }
 }
